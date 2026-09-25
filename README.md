@@ -1,40 +1,120 @@
-# Gemini API File Summarizer & Evaluator (Python)
+Multi-Model Comparative Summarization Pipeline
+A production-ready Python batch processing pipeline that summarizes .txt documents using multiple LLM providers (Google Gemini and Groq / Meta Llama), evaluates performance using an LLM-as-a-Judge scoring system, and outputs comparative results.
 
-A robust, enterprise-grade Python script integrating with the Google GenAI SDK (`google-genai`) to perform batch document summarization and automated quality evaluation (LLM-as-a-Judge) with built-in fault tolerance.
+Features
+Multi-Model Batch Summarization: Summarizes text files across Google Gemini and Groq API endpoints.
 
-## Features
-- **Batch Processing**: Automatically iterates through all `.txt` files in a target directory (`./documents`).
-- **Automated Quality Evaluation (LLM-as-a-Judge)**: Executes a secondary evaluation pass for every generated summary to grade:
-  - **Accuracy (1–5)**: Checks for factual inconsistencies or hallucinations against the original source.
-  - **Coverage (1–5)**: Evaluates retention of key document points.
-  - **Justification**: Generates a structured one-line explanation for the assigned scores.
-- **Fault-Tolerant Execution**: Employs per-file exception handling and exponential backoff (`tenacity`) to prevent transient server-side 503 capacity errors or file errors from breaking batch execution.
-- **Multi-Format Export**: Consolidates results into a structured Markdown report (`batch_summary_results.md`) and logs evaluation metrics to a CSV (`eval_results.csv`).
-- **Environment Security**: Loads API credentials securely via environment variables (`GEMINI_API_KEY`).
+Automated LLM-as-a-Judge Evaluation: Scores each summary on a 1–5 scale for:
 
-## Tech Stack
-- **Python 3.12**
-- **Google GenAI SDK** (`google-genai`)
-- **Tenacity** (Retry and backoff logic)
+Accuracy: Detection of factual errors or hallucinations.
 
-## Getting Started
+Coverage: Capture of main key points.
 
-1. **Install dependencies**:
-   ```bash
-   pip install google-genai tenacity
+Failover & Resilience:
 
+Implements exponential backoff retries via tenacity.
 
-1. Set your environment variable (PowerShell):
-   $env:GEMINI_API_KEY="your_api_key_here"
+Automatic model failover on 503 UNAVAILABLE capacity spikes.
 
-   2. Add input files:
-Place your target .txt files inside the documents folder in the project root:
-mkdir documents
+Dual Output Formats:
 
-3. Run the pipeline:
+Markdown Report (batch_summary_results.md): Side-by-side comparative table format.
+
+CSV Dataset (eval_results.csv): Clean structured data for analytics.
+
+Directory Structure
+Plaintext
+.
+├── documents/                # Place target .txt files here
+│   ├── sample1.txt
+│   ├── sample2.txt
+│   └── sample3.txt
+├── app.py                    # Main pipeline entrypoint
+├── batch_summary_results.md  # Generated comparative Markdown report
+├── eval_results.csv          # Generated evaluation metrics CSV log
+├── requirements.txt          # Dependencies
+└── README.md
+Prerequisites & Installation
+1. Clone the Repository
+Bash
+git clone https://github.com/your-username/your-repo-name.git
+cd your-repo-name
+2. Set Up Virtual Environment
+Bash
+python -m venv venv
+
+# On Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
+
+# On macOS / Linux:
+source venv/bin/activate
+3. Install Dependencies
+Create a requirements.txt file containing:
+
+Plaintext
+google-genai
+groq
+tenacity
+Install them via pip:
+
+Bash
+pip install -r requirements.txt
+Environment Variables Configuration
+Set your API keys as environment variables before running the script:
+
+Windows (PowerShell)
+PowerShell
+$env:GEMINI_API_KEY="your_google_gemini_api_key"
+$env:GROQ_API_KEY="your_groq_api_key"
+macOS / Linux (Bash)
+Bash
+export GEMINI_API_KEY="your_google_gemini_api_key"
+export GROQ_API_KEY="your_groq_api_key"
+Usage
+Place Documents: Put one or more .txt files into the ./documents directory.
+
+Execute the Pipeline:
+
+Bash
 python app.py
+Output Preview
+Console Output
+Plaintext
+Found 3 file(s) for multi-model comparison.
 
-Output Artifacts
-batch_summary_results.md: Contains formatted markdown sections for each processed document, including its summary, accuracy score, coverage score, and justification.
+[1/3] Processing: sample1.txt...
+  ├─ Generating Gemini summary...
+  ├─ Evaluating Gemini summary...
+  ├─ Generating Groq summary...
+  ├─ Evaluating Groq summary...
+  └─ Complete! Gemini: 5/5 | Groq: 5/4
 
-eval_results.csv: A structured log file ideal for metric tracking and downstream data analysis containing Filename, Accuracy Score (1-5), Coverage Score (1-5), and Justification.
+Comparative batch pipeline complete!
+  ├─ Markdown report: 'batch_summary_results.md'
+  └─ CSV metrics log: 'eval_results.csv'
+Markdown Output (batch_summary_results.md)
+Markdown
+# Multi-Model Comparative Summarization Report
+
+Comparing **Gemini** (`gemini-2.5-flash`) vs **Groq** (`llama-3.1-8b-instant`).
+
+---
+
+## Document: sample1.txt
+
+| Metric / Output | Gemini (`gemini-2.5-flash`) | Groq (`llama-3.1-8b-instant`) |
+| :--- | :--- | :--- |
+| **Summary** | Concise summary of sample 1... | Alternative summary of sample 1... |
+| **Accuracy Score** | 5/5 | 5/5 |
+| **Coverage Score** | 5/5 | 4/5 |
+| **Justification** | Captured all main points without hallucinations. | Missed minor sub-point regarding timelines. |
+Configuration & Customization
+Inside app.py, you can modify model identifiers directly:
+
+Python
+# Active Model Endpoints
+GEMINI_PRIMARY_MODEL = "gemini-2.5-flash"
+GEMINI_FALLBACK_MODEL = "gemini-2.5-flash-lite"
+GROQ_MODEL = "llama-3.1-8b-instant"
+License
+MIT License. See LICENSE file for details.
