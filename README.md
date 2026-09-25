@@ -22,3 +22,19 @@ A robust, enterprise-grade Python script integrating with the Google GenAI SDK (
 1. **Install dependencies**:
    ```bash
    pip install google-genai tenacity
+
+
+1. Set your environment variable (PowerShell):
+   $env:GEMINI_API_KEY="your_api_key_here"
+
+   2. Add input files:
+Place your target .txt files inside the documents folder in the project root:
+mkdir documents
+
+3. Run the pipeline:
+python app.py
+
+Output Artifacts
+batch_summary_results.md: Contains formatted markdown sections for each processed document, including its summary, accuracy score, coverage score, and justification.
+
+eval_results.csv: A structured log file ideal for metric tracking and downstream data analysis containing Filename, Accuracy Score (1-5), Coverage Score (1-5), and Justification.
